@@ -1,28 +1,51 @@
-
 services:
+  postgres:
+    image: postgres:15-alpine
+    container_name: Postgres
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=postgres
+    ports:
+      - "5432:5432"
+    networks:
+      - app-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
   api:
     build: ./project/api
     container_name: API
     ports:
-      - 8004:8000
-    command: uvicorn main:app --host 0.0.0.0 --reload
+      - "8004:8004"
+    command: uvicorn main:app --host 0.0.0.0 --port 8004 --reload
     volumes:
-      - .:/app
+      - ./project/api:/usr/src/app
     environment:
       - CELERY_BROKER_URL=redis://redis:6379/0
       - CELERY_RESULT_BACKEND=redis://redis:6379/0
+    networks:
+      - app-network
     depends_on:
-      - redis
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_started
 
   worker:
     build: ./project/api
     container_name: Celery
     command: celery -A worker.celery worker --loglevel=info
     volumes:
-      - .:/app
+      - ./project/api:/usr/src/app
     environment:
       - CELERY_BROKER_URL=redis://redis:6379/0
       - CELERY_RESULT_BACKEND=redis://redis:6379/0
+    networks:
+      - app-network
     depends_on:
       - api
       - redis
@@ -31,18 +54,11 @@ services:
     build: ./project/gui
     container_name: Web
     ports:
-      - 8080:8080
+      - "8080:8080"
     volumes:
-      - .:/app
-    # command: ["wait-for-it.sh", "api:8004"]
-#    healthcheck:
-#      test: [ "CMD", "curl", "-f", "http://api:8004" ]
-#      interval: 1m30s
-#      timeout: 10s
-#      retries: 3
-#      start_period: 40s
-#      start_interval: 5s
-
+      - ./project/gui:/usr/src/app
+    networks:
+      - app-network
     depends_on:
       - api
 
@@ -56,5 +72,11 @@ services:
 #      - api
 
   redis:
-    container_name: Redis
     image: redis:7
+    container_name: Redis
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge

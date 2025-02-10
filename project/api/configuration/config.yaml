@@ -1,8 +1,8 @@
 # tg_api_id: This is your Telegram API ID. You can get this by creating an application on the Telegram website.
-tg_api_id: YOUR_API_ID_HERE
+tg_api_id: 12345678  # Replace with your actual API ID (must be a number)
 
 # tg_api_hash: This is your Telegram API Hash. You can get this by creating an application on the Telegram website.
-tg_api_hash: YOUR_API_HASH_HERE
-tg_bot_token: 7849904426:AAEKjSg-RJ-SceZ2jSUMAM3IhVYo8wz-A20
+tg_api_hash: abcdef1234567890abcdef1234567890  # Replace with your actual API hash
+tg_bot_token: 1234567890:ABCdefGHIjklMNOpqrsTUVwxyz  # Replace with your actual bot token
 redis_broker_url: redis://redis:6379
 redis_backend_url: redis://redis:6379
