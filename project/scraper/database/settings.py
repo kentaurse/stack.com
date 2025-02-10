@@ -2,8 +2,8 @@ from peewee import PostgresqlDatabase
 
 db = PostgresqlDatabase(
     "postgres",
-    user="",
-    password="",
-    host="",
-    port=6543,
+    user="postgres",
+    password="postgres",
+    host="postgres",
+    port=5432,
 )

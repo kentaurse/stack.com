@@ -1,5 +1,8 @@
-tg_api_id: 
-tg_api_hash: 
-tg_bot_token:
-redis_broker_url: redis://localhost:6379
-redis_backend_url: redis://localhost:6379
+# tg_api_id: This is your Telegram API ID. You can get this by creating an application on the Telegram website.
+tg_api_id: YOUR_API_ID_HERE
+
+# tg_api_hash: This is your Telegram API Hash. You can get this by creating an application on the Telegram website.
+tg_api_hash: YOUR_API_HASH_HERE
+tg_bot_token: 7849904426:AAEKjSg-RJ-SceZ2jSUMAM3IhVYo8wz-A20
+redis_broker_url: redis://redis:6379
+redis_backend_url: redis://redis:6379
