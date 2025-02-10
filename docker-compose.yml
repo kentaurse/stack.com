@@ -1,39 +1,19 @@
 services:
-  postgres:
-    image: postgres:15-alpine
-    container_name: Postgres
-    environment:
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=postgres
-      - POSTGRES_DB=postgres
-    ports:
-      - "5432:5432"
-    networks:
-      - app-network
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres"]
-      interval: 5s
-      timeout: 5s
-      retries: 5
-
   api:
     build: ./project/api
     container_name: API
     ports:
-      - "8004:8004"
-    command: uvicorn main:app --host 0.0.0.0 --port 8004 --reload
+      - 8004:8000
+    command: uvicorn main:app --host 0.0.0.0 --reload
     volumes:
-      - ./project/api:/usr/src/app
+      - .:/app
     environment:
       - CELERY_BROKER_URL=redis://redis:6379/0
       - CELERY_RESULT_BACKEND=redis://redis:6379/0
     networks:
       - app-network
     depends_on:
-      postgres:
-        condition: service_healthy
-      redis:
-        condition: service_started
+      - redis
 
   worker:
     build: ./project/api
@@ -54,9 +34,18 @@ services:
     build: ./project/gui
     container_name: Web
     ports:
-      - "8080:8080"
+      - 8080:8080
     volumes:
-      - ./project/gui:/usr/src/app
+      - .:/app
+    # command: ["wait-for-it.sh", "api:8004"]
+#    healthcheck:
+#      test: [ "CMD", "curl", "-f", "http://api:8004" ]
+#      interval: 1m30s
+#      timeout: 10s
+#      retries: 3
+#      start_period: 40s
+#      start_interval: 5s
+
     networks:
       - app-network
     depends_on:
@@ -74,9 +63,13 @@ services:
   redis:
     image: redis:7
     container_name: Redis
+    ports:
+      - "6379:6379"
     networks:
       - app-network
+    command: redis-server --bind 0.0.0.0
 
+# Define networks
 networks:
   app-network:
     driver: bridge
